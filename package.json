@@ -23,6 +23,7 @@
 	"optionalDependencies": {
 		"@discordjs/opus": "^0.3.3",
 		"erlpack": "github:discord/erlpack",
+		"ffmpeg-static": "^4.2.7",
 		"zlib-sync": "^0.1.7"
 	},
 	"eslintConfig": {
