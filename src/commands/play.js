@@ -1,5 +1,4 @@
 const { Util } = require('discord.js');
-const Client = require('../struct/Client');
 const { Util: SoundCloudUtil } = require('soundcloud-scraper');
 
 module.exports = {
@@ -8,11 +7,6 @@ module.exports = {
 	usage: '[command name]',
 	args: true,
 	cooldown: 5,
-	/**
-	 * @param {Object} message d
-	 * @param {Client} message.client Client
-	 * @param {string[]} args a
-	 */
 	async execute(message, args) {
 		const { channel } = message.member.voice;
 		if (!channel) return message.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
