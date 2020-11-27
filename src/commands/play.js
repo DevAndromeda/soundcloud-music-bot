@@ -4,7 +4,7 @@ const { Util: SoundCloudUtil } = require('soundcloud-scraper');
 module.exports = {
 	name: 'play',
 	description: 'Play command.',
-	usage: '[command name]',
+	usage: '[song_url/song_name]',
 	args: true,
 	cooldown: 5,
 	async execute(message, args) {
@@ -15,7 +15,7 @@ module.exports = {
 		if (!permissions.has('SPEAK')) return message.channel.send('I cannot speak in this voice channel, make sure I have the proper permissions!');
 
 		const serverQueue = message.client.queue.get(message.guild.id);
-		const query = args[0].replace(/<(.+)>/g, '$1');
+		const query = args.join(' ').replace(/<(.+)>/g, '$1');
 		let songInfo;
 		const loadingMessage = await message.channel.send('⏱ | Parsing Track...');
 
