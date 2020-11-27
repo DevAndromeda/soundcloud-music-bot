@@ -3,7 +3,7 @@ const { readdirSync } = require('fs');
 const { join } = require('path');
 const MusicClient = require('./struct/Client');
 const { Collection } = require('discord.js');
-const client = new MusicClient({ token: process.env.DISCORD_TOKEN, prefix: process.env.DISCORD_PREFIX });
+const client = new MusicClient({ token: process.env.TOKEN, prefix: process.env.PREFIX, soundcloud: process.env.SOUNDCLOUD_API_KEY || null });
 
 const commandFiles = readdirSync(join(__dirname, 'commands')).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {

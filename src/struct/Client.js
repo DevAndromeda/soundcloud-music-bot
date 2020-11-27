@@ -1,4 +1,5 @@
 const { Client, Collection } = require('discord.js');
+const SoundCloud = require('soundcloud-scraper');
 
 module.exports = class extends Client {
 	constructor(config) {
@@ -13,5 +14,7 @@ module.exports = class extends Client {
 		this.queue = new Map();
 
 		this.config = config;
+
+		this.soundcloud = new SoundCloud.Client(this.config.soundcloud);
 	}
 };

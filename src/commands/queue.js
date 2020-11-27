@@ -8,9 +8,9 @@ module.exports = {
 		return message.channel.send(`
 __**Song queue:**__
 
-${serverQueue.songs.map(song => `**-** ${song.title}`).join('\n')}
+${serverQueue.songs.map((song, i) => i === 0 ? '' : `**${i}.** ${song.title} [${song.author.name}]`).join('\n')}
 
 **Now playing:** ${serverQueue.songs[0].title}
-		`);
+		`, { split: true });
 	}
 };

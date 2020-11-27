@@ -1,9 +1,9 @@
 {
-	"name": "discord-music-bot",
-	"version": "0.1.0",
+	"name": "soundcloud-bot",
+	"version": "1.0.0",
 	"description": "Very simple discord music bot with the discordjs.guide command handler for easy learning and adapting.",
 	"main": "src/index.js",
-	"author": "iCrawl <icrawltogo@gmail.com>",
+	"author": "Snowflake107",
 	"license": "MIT",
 	"private": true,
 	"scripts": {
@@ -12,7 +12,9 @@
 	"dependencies": {
 		"discord.js": "^12.5.1",
 		"dotenv": "^8.2.0",
-		"ytdl-core": "^4.1.0"
+		"parse-ms": "^2.1.0",
+		"soundcloud-scraper": "^4.0.0",
+		"string-progressbar": "^1.0.1"
 	},
 	"devDependencies": {
 		"eslint": "^7.14.0",

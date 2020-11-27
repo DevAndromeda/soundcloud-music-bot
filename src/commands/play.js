@@ -1,5 +1,6 @@
 const { Util } = require('discord.js');
-const ytdl = require('ytdl-core');
+const Client = require('../struct/Client');
+const { Util: SoundCloudUtil } = require('soundcloud-scraper');
 
 module.exports = {
 	name: 'play',
@@ -7,6 +8,11 @@ module.exports = {
 	usage: '[command name]',
 	args: true,
 	cooldown: 5,
+	/**
+	 * @param {Object} message d
+	 * @param {Client} message.client Client
+	 * @param {string[]} args a
+	 */
 	async execute(message, args) {
 		const { channel } = message.member.voice;
 		if (!channel) return message.channel.send('I\'m sorry but you need to be in a voice channel to play music!');
@@ -15,17 +21,37 @@ module.exports = {
 		if (!permissions.has('SPEAK')) return message.channel.send('I cannot speak in this voice channel, make sure I have the proper permissions!');
 
 		const serverQueue = message.client.queue.get(message.guild.id);
-		const songInfo = await ytdl.getInfo(args[0].replace(/<(.+)>/g, '$1'));
+		const query = args[0].replace(/<(.+)>/g, '$1');
+		let songInfo;
+		const loadingMessage = await message.channel.send('⏱ | Parsing Track...');
+
+		if (SoundCloudUtil.validateURL(query)) {
+			songInfo = await message.client.soundcloud.getSongInfo(query).catch(e => { console.error(`Track parse error: ${e}`); });
+			if (!songInfo) return loadingMessage.edit('Could not parse song info');
+		} else {
+			const res = await message.client.soundcloud.search(query, 'track').catch(e => { console.error(`Track parse error: ${e}`); });
+			if (!res) return loadingMessage.edit('Track not found.');
+
+			songInfo = await message.client.soundcloud.getSongInfo(res[0].url).catch(e => { console.error(`Track parse error: ${e}`); });
+			if (!songInfo) return loadingMessage.edit('Could not parse song info');
+		}
+
 		const song = {
-			id: songInfo.videoDetails.video_id,
-			title: Util.escapeMarkdown(songInfo.videoDetails.title),
-			url: songInfo.videoDetails.video_url
+			title: Util.escapeMarkdown(songInfo.title),
+			url: songInfo.url,
+			thumbnail: songInfo.thumbnail,
+			duration: songInfo.duration,
+			author: songInfo.author
 		};
+
+		Object.defineProperty(song, '_raw', { value: songInfo });
+
+		loadingMessage.delete();
 
 		if (serverQueue) {
 			serverQueue.songs.push(song);
 			console.log(serverQueue.songs);
-			return message.channel.send(`✅ **${song.title}** has been added to the queue!`);
+			return message.channel.send(`✅ | Loaded track **${song.title}** by **${song.author.name}**!`);
 		}
 
 		const queueConstruct = {
@@ -33,7 +59,7 @@ module.exports = {
 			voiceChannel: channel,
 			connection: null,
 			songs: [],
-			volume: 2,
+			volume: 100,
 			playing: true
 		};
 		message.client.queue.set(message.guild.id, queueConstruct);
@@ -47,14 +73,14 @@ module.exports = {
 				return;
 			}
 
-			const dispatcher = queue.connection.play(ytdl(song.url))
+			const dispatcher = queue.connection.play(await song._raw.downloadProgressive())
 				.on('finish', () => {
 					queue.songs.shift();
 					play(queue.songs[0]);
 				})
 				.on('error', error => console.error(error));
-			dispatcher.setVolumeLogarithmic(queue.volume / 5);
-			queue.textChannel.send(`🎶 Start playing: **${song.title}**`);
+			dispatcher.setVolumeLogarithmic(queue.volume / 200);
+			queue.textChannel.send(`🎶 | Start playing: **${song.title}** by **${song.author.name}**!`);
 		};
 
 		try {
